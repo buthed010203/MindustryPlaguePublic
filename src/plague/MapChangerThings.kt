@@ -1,36 +1,35 @@
-package plague;
+package plague
 
-import java.util.Timer;
-import java.util.TimerTask;
-import mindustry.Vars;
-import mindustry.game.Gamemode;
-import mindustry.gen.Groups;
-import mindustry.net.WorldReloader;
+import mindustry.gen.Groups
+import mindustry.gen.Player
+import mindustry.net.WorldReloader
+import mindustry.Vars
+import mindustry.game.Gamemode
+import java.util.*
 
+class MapChangerThings {
+    init {
+        mapchangetimer = Timer()
+        mapchangetimer.schedule(MapChange(), (14 * 1000).toLong())
+    }
 
-public class MapChangerThings {
-	static Timer mapchangetimer;
+    internal inner class MapChange : TimerTask() {
+        override fun run() {
+            Groups.player.each { p: Player -> p.kick("A voted map is being loaded, sorry!", 0) }
 
-	public MapChangerThings() {
-		mapchangetimer = new Timer();
-		mapchangetimer.schedule(new MapChange(), 14 * 1000);
-	}
+            // Why would anyone create this,you may ask? not even i know
+            val reloader = WorldReloader()
+            reloader.begin()
+            Vars.world.loadMap(FPlagueBasic.selectedMap, FPlagueBasic.selectedMap!!.applyRules(Gamemode.survival))
+            Vars.state.rules = Vars.state.map.applyRules(Gamemode.survival)
+            Vars.logic.play()
+            reloader.end()
+            FPlagueBasic.selectedMap = null
+            mapchangetimer.cancel()
+        }
+    }
 
-	class MapChange extends TimerTask {
-		public void run() {
-			Groups.player.each(p ->{
-    			p.kick("A voted map is being loaded, sorry!", 0);
-    		});
-			
-			// Why would anyone create this,you may ask? not even i know
-			WorldReloader reloader = new WorldReloader();
-			reloader.begin();
-			Vars.world.loadMap(FPlagueBasic.selectedMap, FPlagueBasic.selectedMap.applyRules(Gamemode.survival));
-			Vars.state.rules = Vars.state.map.applyRules(Gamemode.survival);
-			Vars.logic.play();
-			reloader.end();
-			FPlagueBasic.selectedMap = null;
-			mapchangetimer.cancel();
-		}
-	}
+    companion object {
+        var mapchangetimer: Timer
+    }
 }
