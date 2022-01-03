@@ -61,7 +61,6 @@ public class FPlagueBasic extends Plugin {
 	// I need this here cus java
 	Player kickedPlayer = null;
 	Team teamProximityCore = null;
-	PlayerList players = new PlayerList();
 
 	@Override
     public void init(){
@@ -159,7 +158,7 @@ public class FPlagueBasic extends Plugin {
 		
 		// Makes you plague if you join too late also if rejoin put back on team
 		Events.on(PlayerJoin.class, event -> {
-			if(!players.hasPlayer(event.player.uuid())) {
+			if(event.player.getInfo().timesJoined <= 1) {
 				//System.out.println("player has not joined before");
 				event.player.sendMessage("[yellow]Welcome to plague!");
 				event.player.sendMessage("[blue]Discord Link: [yellow]https://discord.gg/rfzm5xgJSC");
